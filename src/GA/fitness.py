@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Callable
+import numpy as np
 
 from .DNA import DNA
 from coilgun.coil import Coil, CoilEnum, GeometryCoil, Solenoid
@@ -128,7 +129,7 @@ class ODECoilFitness(FitnessFunction):
 		v0, v1 = v[0], v[-1]
 		V0, V1 = V[0], V[-1]
 
-		return calculate_efficiency(
+		score = calculate_efficiency(
 			v0=v0,
 			v1=v1,
 			V0=V0,
@@ -136,6 +137,15 @@ class ODECoilFitness(FitnessFunction):
 			m=dna["projectile_mass"],
 			C=dna["capacitance"]
 		)
+
+		max_Amp = np.max(I)
+		amp_threshold = 600
+
+		# Limit ampare to some extent
+		if max_Amp > amp_threshold:
+			score /= max_Amp / amp_threshold
+
+		return score
 
 
 class NoDNAError(Exception):

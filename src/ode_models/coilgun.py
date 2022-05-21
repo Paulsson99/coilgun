@@ -2,6 +2,16 @@ import numpy as np
 from scipy import integrate
 from typing import Callable
 
+def drag_force(v):
+	"""Drag force from the air"""
+	rho = 1.2 # Air density [kg/m^3]
+	C_d = 100 # Drag coefficient, roughly 0.5 for a sphere
+	r = 4.6e-3 # Radius of the ball
+	A = np.pi * r**2
+
+	return rho * C_d * A * v**2 / 2 * np.sign(-v)
+
+
 def ode_solver_coilgun(
 	C: float, 		# Capacitance of the capaitance bank
 	R: float, 		# Resistance of the coil
@@ -26,7 +36,7 @@ def ode_solver_coilgun(
 		"""
 		x, v, I, dIdt, V = y
 
-		dvdt = I**2 * dLdx(x) / (2*m) #+ np.divide(L(x)*I*dIdt, v, out=np.zeros_like(v), where=v!=0)
+		dvdt = I**2 * dLdx(x) / (2*m)
 		dIdt2 = -I / (L(x)*C) - R*dIdt / L(x) - dIdt*dLdx(x)*v/L(x)
 		dVdt = -I/C
 
@@ -115,7 +125,7 @@ def ode_solver_RL(
 		"""
 		x, v, I = y
 
-		dvdt = I**2 * dLdx(x) / (2*m) #+ np.divide(L(x)*I*dIdt, v, out=np.zeros_like(v), where=v!=0)
+		dvdt = I**2 * dLdx(x) / (2*m)
 		dIdt = -I*R/L(x)
 
 		return [v, dvdt, dIdt]

@@ -40,7 +40,8 @@ def show_simulation(args):
 def show_ode_sim(args):
 	"""Command line interface for showing an ode simulation"""
 	dna = DNA.read_DNA(Path(args["DNA"]))
-	plot_ode_solution(dna, args["max_time"], args["minimum_solver_steps"])
+
+	plot_ode_solution(dna, args["max_time"], args["minimum_solver_steps"], output_file=args["outfile"])
 
 def main():
 	parser = ArgumentParser(
@@ -100,6 +101,12 @@ def main():
 		'-d', '--DNA',
 		type=str,
 		help="Template file for the coil. If not provided a default is used"
+	)
+	ode_parser.add_argument(
+		"--outfile", "-o", 
+		type=str,
+		default=None,
+		help="Save the data to the file 'outfile'"
 	)
 
 	# Parse arguments and execute the right program

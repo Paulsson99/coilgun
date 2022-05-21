@@ -9,6 +9,7 @@ from GA.DNA import DNA
 from ode_models.coilgun import ode_solver_coilgun, calculate_efficiency
 from ode_models.simulation import CoilgunSimulationODE
 
+import pandas as pd
 
 def draw_simulation(sim: CoilgunSimulation) -> FuncAnimation:
 	"""Visualise the simulation"""
@@ -52,9 +53,12 @@ def draw_simulation(sim: CoilgunSimulation) -> FuncAnimation:
 
 	return animation
 
-def plot_ode_solution(dna: DNA, t_max: float, t_steps: int):
+def plot_ode_solution(dna: DNA, t_max: float, t_steps: int, output_file: str=None):
 	sim = CoilgunSimulationODE.from_DNA(dna)
 	t, x, v, I, V = sim.run(t_max, t_steps)
+
+	if not output_file is None:
+		save_data(t, x, v, I, V, output_file=output_file, header=["time", "pos", "vel", "current", "voltage"])
 
 	dLdx = sim.coil.inductance_model_derivitive(sim.projectile)
 
@@ -89,3 +93,9 @@ def plot_ode_solution(dna: DNA, t_max: float, t_steps: int):
 	force_ax.set(xlabel="Projektilens position [mm]")
 
 	plt.show()
+
+def save_data(*data, output_file: str, header=None):
+	"""Save data [numpy arrays of same length] to the file output_file"""
+	# Create and transpose the data
+	df = pd.DataFrame(data).T
+	df.to_csv(output_file, index=None, header=header)

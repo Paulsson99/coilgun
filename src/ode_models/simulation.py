@@ -32,14 +32,28 @@ class CoilData:
 	r: float 	# [m] Radius of the coil
 	N: int 		# [-] Number of turns of wire in the coil
 	rho: float 	# [Ohm x m] Resestivity of the wire
-	A: float 	# [m^2]	Cross-sectional area of the wire
+	wire_diameter: float # [m] Wire diameter
 
 	def resistance(self):
 		"""Return resistance of the coil"""
-		# Length of wire
-		L = self.N * 2 * np.pi * self.r
+		# Number of turns of wire per "level"
+		turns_per_level = self.l / self.wire_diameter
+		# Number of "levels" of wire on top of eachother
+		wire_levels = self.N / turns_per_level
+		# Maximum radus of the outermost level of wire
+		max_r = self.r + (self.wire_diameter*np.sqrt(3)/2) * (wire_levels - 1)
+
+		# Average radius
+		average_r = (self.r + max_r) / 2
+		# Length of wire (Calculated with an aretmitic sum)
+		L = 2 * np.pi * turns_per_level * average_r
+
+		# print(f"{turns_per_level=}, {wire_levels=}, {max_r=}, {average_r=}, {L=}")
+
+		# Cross-sectional area of the wire
+		A = np.pi * self.wire_diameter**2 / 4
 		# R = rho*L/A
-		return self.rho * L / self.A
+		return self.rho * L / A
 
 	def coil_inductance(self, core_mu):
 		"""Return the inductance of a coil with a core with permeability 'core_mu'"""
@@ -52,10 +66,10 @@ class CoilData:
 		Return the constants A, B, C and D to the inductance model
 		L(x) = Aexp(-B|x|^C)+D
 		"""
-		D = self.coil_inductance(mu_0)
-		A = D*projectile.mu_r - D
-		C = 2.06
-		B = (self.l/2)**(-C)
+		A = 1.7058e-09 * self.N**1.580 * self.l**-0.461
+		B = 3.0058e+05 * self.N**-0.888 * np.exp(113.758*self.l)
+		C = 3.6600e+01 * self.N**-0.057 * self.l**0.649
+		D = 6.2985e-11 * self.N**2.312 * self.l**-0.881
 
 		return A, B, C, D
 
@@ -107,7 +121,7 @@ class CoilgunSimulationODE:
 			r=DNA["solenoid_radius"],
 			N=DNA["solenoid_turns"],
 			rho=DNA["solenoid_resistivity"],
-			A=DNA["wire_cross_sectional_area"]
+			wire_diameter=DNA["wire_diameter"]
 		)
 
 		CB = CapacitanceBankData(
@@ -150,14 +164,14 @@ class CoilgunSimulationODE:
 		t2, x2, v2, I2 = ode_solver_RL(
 			m=self.projectile.m,
 			x0=x1[-1],
-			x1=None,
 			v0=v1[-1],
 			L=L,
 			dLdx=dLdx,
 			R=R,
 			I0=I1[-1],
 			t_max=t_max,
-			t_steps=t_steps
+			t_steps=t_steps,
+			x1=self.coil.l * 1.2 # Stop the simulation two coils from x=0
 		)
 		# first element is the same as the last
 		t = np.concatenate((t1, t2[1:] + t1[-1]))
@@ -168,3 +182,7 @@ class CoilgunSimulationODE:
 
 		# Return time, pos, vel, current, voltage
 		return t, x, v, I, V
+
+if __name__ == '__main__':
+	coil = CoilData(l=50e-3, r=9e-3, N=200, wire_diameter=0.6e-3, rho=1.72e-7)
+	print(coil.resistance())

@@ -1,17 +1,17 @@
 # Solenoid DNA
 solenoid_length: 50.0e-3        # [m]
-solenoid_radius: 10.0e-3        # [m]
+solenoid_radius: 8.75e-3        # [m]
 solenoid_turns: 500             # [-]
-solenoid_resistivity: 1.72e-8    # [Ohm x m]
-wire_cross_sectional_area: 1.e-6 # [m^2]
+solenoid_resistivity: 1.72e-8   # [Ohm x m]
+wire_diameter: 0.6e-3           # [m]
 
 # Capacitance bank
 capacitance: 1600.0e-6          # [F]
 capacitance_voltage: 300.0      # [V]
 
 # Projectile
-projectile_mass: 100.0e-3        # [kg]
+projectile_mass: 3.0e-3         # [kg]
 projectile_start_pos: -40.0e-3  # [m]
-projectile_end_pos: null         # [m]
-projectile_velocity: 0.0        # [m/s]
+projectile_end_pos: null        # [m]
+projectile_velocity: 0.0       # [m/s]
 projectile_mu_r: 2              # [-]

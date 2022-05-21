@@ -1,0 +1,12 @@
+capacitance: 1067.e-6
+capacitance_voltage: 600
+projectile_end_pos: null
+projectile_mass: 0.003
+projectile_mu_r: 2
+projectile_start_pos: -20.e-2
+projectile_velocity: 0.0
+solenoid_length: 3.e-2
+solenoid_radius: 0.00875
+solenoid_resistivity: 1.72e-7
+solenoid_turns: 200
+wire_diameter: 0.0006
